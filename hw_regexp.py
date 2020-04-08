@@ -12,12 +12,13 @@ import csv
 # объединить все дублирующиеся записи о человеке в одну.
 
 from pprint import pprint
+
 # читаем адресную книгу в формате CSV в список contacts_list
 
 with open("phonebook_raw.csv", encoding='utf-8') as f:
     rows = csv.reader(f, delimiter=",")
     contacts_list = list(rows)
-# print(contacts_list)
+
 
 # TODO 1: выполните пункты 1-3 ДЗ
 # ваш код
@@ -25,12 +26,11 @@ with open("phonebook_raw.csv", encoding='utf-8') as f:
 def str_text(contact_list):
     '''Преобразует список в строку, для работы regexp'''
     list_text = contacts_list[1:]
-    text = ''
-
+    text = str()
     for line in list_text:
-        for item in line:
-            text += item + ' '
+        text += ' '.join(line) + ' '
     return text
+
 
 def unic_full_name():
     '''По средствам regexp создаёт список уникальных полных имён контактов,
@@ -44,6 +44,7 @@ def unic_full_name():
             list_full_name.append(i)
     return list_full_name
 
+
 # Функции по изменению в тексте
 def fix_text_name():
     '''Функция находит по шаблону имя фамилия отчество и подставляет перед ними firstname, lastname и surname
@@ -51,8 +52,9 @@ def fix_text_name():
     pattern_name = re.compile(r'([А-ЯЁ][а-яё]+)\s+([А-ЯЁ][а-яё]+)\s+([А-ЯЁ][а-яё]+)?')
     new_pattern_name = r'; firstname: \1, lastname: \2, surname: \3, '
     text_1 = pattern_name.sub(new_pattern_name, str_text(contacts_list))
-    text_1 = text_1[2:] # обрезает первую ;
+    text_1 = text_1[2:]  # обрезает первую ;
     return text_1
+
 
 def fix_phone():
     '''Функция находит по шаблону номера телефонов вместе дополнительными
@@ -62,12 +64,14 @@ def fix_phone():
     fix_tel_text = pattern_tel.sub(fix_pattern_tel, fix_text_name())
     return fix_tel_text
 
+
 def fix_email():
     '''Функция находит email и преобразует'''
     pattern_email = re.compile(r'(\S+@\w+\.\w{2,3})')
     new_pattern_email = r'email: \1,'
     fix_email_text = pattern_email.sub(new_pattern_email, fix_phone())
     return fix_email_text
+
 
 def fix_organization():
     '''Функция преобразует название организации'''
@@ -76,6 +80,7 @@ def fix_organization():
     fix_org_text = pattern_organization.sub(new_pattern_organization, fix_email())
     return fix_org_text
 
+
 def fix_position_1():
     '''Не смог подобрать один шаблон под должности, поэтому нахожу их по отдельности'''
     pattern_position_1 = re.compile('(\w+\s\w+\s\W\s\w+\s\w+\s\w+\s\w\s\w+\s\w+\s\w+\s\w+\s\w+\s\w+\s\w\s\w+\s\w+\s\w+)')
@@ -83,12 +88,14 @@ def fix_position_1():
     fix_pos_text_1 = pattern_position_1.sub(new_pattern_position_1, fix_organization())
     return fix_pos_text_1
 
+
 def fix_position_2():
     '''Находит второую позицию'''
     pattern_position_2 = re.compile('([a-яё]+\s\w+\s[А-ЯЁ]\w+\s\w+\s[А-ЯЁ]\w+\s\w+\s\w+)')
     new_pattern_position_2 = r'position: \1,'
     fix_pos_text_2 = pattern_position_2.sub(new_pattern_position_2, fix_position_1())
     return fix_pos_text_2
+
 
 def fix_text():
     '''Функция разделяет текст на список через ';', которые установили в начале
@@ -99,7 +106,7 @@ def fix_text():
     phone_book = []
     i = 0
     for man in unic_full_name():
-        phone_book.append([f'firstname: {man[0]}, lastname: {man[1]}, surname: {man[2]}'])
+        phone_book.append(f'firstname: {man[0]},lastname: {man[1]},surname: {man[2]}'.split(','))
         for contact in list_text:
             if man[0] in contact.split()[1]:
                 pazzle = contact.split(',')[3:]
@@ -116,8 +123,8 @@ if __name__ in '__main__':
     for i in fix_text():
         print(i)
 
-# TODO 2: сохраните получившиеся данные в другой файл
-# код для записи файла в формате CSV
+    # TODO 2: сохраните получившиеся данные в другой файл
+    # код для записи файла в формате CSV
     with open("phonebook.csv", "w") as f:
         datawriter = csv.writer(f, delimiter=',')
         # Вместо contacts_list подставьте свой список
